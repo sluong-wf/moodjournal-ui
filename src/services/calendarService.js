@@ -12,18 +12,18 @@ export const generateWeek = (startDate) => {
         });
     }
 
-    return week.reverse(); // Reversing to show the correct order from Sunday to Saturday
+    return week; // Reversing to show the correct order from Sunday to Saturday
 };
 
 // Function to generate the full calendar for N weeks, starting from the current week
 export const generateFullCalendar = (calendarData, numberOfWeeks) => {
     const fullCalendar = [];
 
-    const startOfCurrentWeek = moment().startOf("week");
+    const startOfCurrentWeek = moment().add(1, "week");
 
     // Generate weeks going back in time
     for (let i = 0; i < numberOfWeeks; i++) {
-        const weekStartDate = startOfCurrentWeek.subtract(i, "weeks");
+        const weekStartDate = startOfCurrentWeek.subtract(1, "week");
         const weekData = generateWeek(weekStartDate);
 
         // Check for data matching the week and populate it

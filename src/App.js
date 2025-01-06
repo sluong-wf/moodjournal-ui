@@ -6,7 +6,7 @@ import './App.css';
 
 function App() {
   return (
-    <BrowserRouter basename='moodjournal'>
+    <BrowserRouter basename='moodjournal-ui'>
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />

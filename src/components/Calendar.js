@@ -5,30 +5,43 @@ import MoodBox from './MoodBox';
 import moment from 'moment';
 import { generateFullCalendar } from "../services/calendarService";
 import { useTheme } from '@mui/material/styles';
+import { useFocus } from '../providers/FocusProvider';
 
-const Calendar = ({ }) => {
+const Calendar = ({ calData }) => {
   const theme = useTheme();
+  const { focusedRow } = useFocus();
 
   const [fullCalendar, setFullCalendar] = useState([]);
-  const [weeksToLoad, setWeeksToLoad] = useState(10); // Start with 10 weeks of data
+  const [weeksToLoad, setWeeksToLoad] = useState(15);
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [journalEntry, setJournalEntry] = useState('');
-  const [calendarData, setCalendarData] = useState([]);
+  const [calendarData, setCalendarData] = useState(calData);
+
+  const rowOpacity = (rowIndex) => {
+    if ([0, 1, 2].includes(Math.abs(focusedRow - rowIndex))) {
+      return 1;
+    } else {
+      return 1 - (0.12 * Math.abs(focusedRow - rowIndex));
+    }
+  }
 
   const handleScroll = (e) => {
-    const bottom = e.target.scrollHeight === e.target.scrollTop + e.target.clientHeight;
-    if (bottom) {
-      setWeeksToLoad((prev) => prev + 5); // Load 5 more weeks as you scroll
-    }
+    // keeping empty
   };
 
   useEffect(() => {
-    const fetchCalendarEntries = async () => {
-      const data = await getCalendarEntries();
-      setCalendarData(data);
-    };
-    fetchCalendarEntries();
+    if (weeksToLoad - focusedRow < 8 && weeksToLoad < 40) {
+      setWeeksToLoad((prev) => prev + 5);
+    }
+  }, [focusedRow]);
+
+  useEffect(() => {
+    // const fetchCalendarEntries = async () => {
+    //   const data = await getCalendarEntries();
+    //   setCalendarData(data);
+    // };
+    // fetchCalendarEntries();
   }, []);
 
   useEffect(() => {
@@ -36,14 +49,9 @@ const Calendar = ({ }) => {
     setFullCalendar(calendar);
   }, [calendarData, weeksToLoad]);
 
-  const getHighlightStyle = (date) => {
-    const todayDate = moment().format("YYYY-MM-DD");
-    return date === todayDate ? { backgroundColor: "#ffd700", fontWeight: "bold" } : {};
-  };
-
   const handleOpen = (date) => {
     setSelectedDate(date);
-    setJournalEntry(calendarData[date] || '');
+    setJournalEntry(calendarData.find(entry => entry.date === date)?.journalEntry || '');
     setOpen(true);
   };
 
@@ -64,17 +72,16 @@ const Calendar = ({ }) => {
 
   return (
     <>
-      <Box sx={{ padding: 2, height: "100vh", overflowY: "scroll" }} onScroll={handleScroll}>
+      <Box sx={{ padding: 2 }} onScroll={handleScroll}>
         <Grid2 container spacing={1} sx={{ flexDirection: "column" }}>
           {fullCalendar.map((week, rowIndex) => (
-            <Grid2 container key={rowIndex} spacing={1} sx={{ flex: 1 }}>
+            <Grid2 container key={rowIndex} spacing={1} sx={{ flex: 1 }} className="week-row">
               {week.map((day, colIndex) => (
                 <Grid2
                   xs={1}
                   key={colIndex}
                   sx={{
-                    ...getHighlightStyle(day.date),
-                    opacity: rowIndex === 0 ? 1 : 0.6,
+                    opacity: rowOpacity(rowIndex),
                     transition: "opacity 0.3s",
                     cursor: "pointer",
                     display: "flex",
@@ -85,6 +92,7 @@ const Calendar = ({ }) => {
                   <MoodBox
                     moodColor={day.moodColor}
                     onClick={() => handleOpen(day.date)}
+                    today={moment().format("YYYY-MM-DD") === day.date}
                   />
                 </Grid2>
               ))}
@@ -95,13 +103,14 @@ const Calendar = ({ }) => {
       {/* Modal for adding/updating journal entries */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={{ width: 400, padding: 2, backgroundColor: 'white', margin: 'auto', marginTop: '20%' }}>
-          <Typography variant="h6">Journal Entry for {selectedDate}</Typography>
+          <Typography variant="h6" sx={{ padding: '5px', color: theme.palette.primary.main }}>Journal</Typography>
           <TextField
-            label="Journal Entry"
+            label={selectedDate}
             multiline
             fullWidth
             rows={4}
             value={journalEntry}
+            sx={{ marginTop: '10px' }}
             onChange={(e) => setJournalEntry(e.target.value)}
           />
           <Button onClick={handleSaveEntry}>Save</Button>

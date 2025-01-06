@@ -130,7 +130,7 @@ const ThemeSelector = ({ toggleTheme }) => {
           display: collapsed ? "block" : "none",
           boxShadow: 3,
         }}
-        onClick={() => setCollapsed(!collapsed)}
+        // onClick={() => setCollapsed(!collapsed)}
       >
         <PaletteIcon />
       </IconButton>
