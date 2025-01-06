@@ -1,12 +1,13 @@
-// src/components/Calendar.js
 import React, { useState, useEffect } from 'react';
 import { Grid2, Box, Typography, Modal, TextField, Button } from '@mui/material';
 import { getCalendarEntries, saveJournalEntry } from '../services/journalService';
 import MoodBox from './MoodBox';
 import moment from 'moment';
 import { generateFullCalendar } from "../services/calendarService";
+import { useTheme } from '@mui/material/styles';
 
 const Calendar = ({ }) => {
+  const theme = useTheme();
 
   const [fullCalendar, setFullCalendar] = useState([]);
   const [weeksToLoad, setWeeksToLoad] = useState(10); // Start with 10 weeks of data
@@ -24,7 +25,7 @@ const Calendar = ({ }) => {
 
   useEffect(() => {
     const fetchCalendarEntries = async () => {
-      const data = await getCalendarEntries(); // Replace with actual API call
+      const data = await getCalendarEntries();
       setCalendarData(data);
     };
     fetchCalendarEntries();
@@ -42,7 +43,7 @@ const Calendar = ({ }) => {
 
   const handleOpen = (date) => {
     setSelectedDate(date);
-    setJournalEntry(calendarData[date] || ''); // If entry exists, load it
+    setJournalEntry(calendarData[date] || '');
     setOpen(true);
   };
 
@@ -52,11 +53,11 @@ const Calendar = ({ }) => {
   };
 
   const handleSaveEntry = async () => {
-    await saveJournalEntry(selectedDate, journalEntry); // Call service to save
+    await saveJournalEntry(selectedDate, journalEntry);
     setOpen(false);
     setCalendarData(prev => {
       const updated = [...prev];
-      updated[selectedDate] = journalEntry; // Update calendar data with new entry
+      updated[selectedDate] = journalEntry;
       return updated;
     });
   };

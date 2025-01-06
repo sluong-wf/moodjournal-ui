@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Button, Typography, Modal, Box, TextField } from '@mui/material';
 import { loginUser, registerUser, logoutUser, getLoggedInUser, saveUsername, getUsername } from '../services/authService';
+import { useTheme } from '@mui/material/styles';
 
 const NavbarComponent = () => {
+    const theme = useTheme();
+
     const [showSignUp, setShowSignUp] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
+    const [padding, setPadding] = useState("0px");
+
+    useEffect(() => {
+      const timeToLower = setTimeout(() => {
+        setPadding("60px");
+      }, 150);
+  
+      return () => clearTimeout(timeToLower);
+    }, []);
 
     const [formData, setFormData] = useState({
         password: '',
@@ -58,7 +70,7 @@ const NavbarComponent = () => {
 
     return (
         <div>
-            <AppBar sx={{ backgroundColor: "#4a449b", zIndex: 90, width: "300px", top: "0", left: "50%", transform: "translateX(-50%)" }}>
+            <AppBar sx={{ backgroundColor: theme.palette.secondary.main, zIndex: 90, width: "300px", top: "0", left: "50%", transform: "translateX(-50%)" }}>
                 <Toolbar sx={{  justifyContent: "center" }}>
                     <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
                         Mood Journal
@@ -66,7 +78,7 @@ const NavbarComponent = () => {
                 </Toolbar>
             </AppBar>
             <AppBar position="sticky" sx={{ zIndex: 10 }}>
-                <Toolbar sx={{ paddingTop: "60px", width: "250px", backgroundColor: "#353535", justifyContent: "space-around" }}>
+                <Toolbar sx={{ paddingTop: padding, width: "250px", color: "white", backgroundColor: "#353535", justifyContent: "space-around", transition: "padding-top 0.8s ease-in-out" }}>
                     {isLoggedIn ? (
                         <>
                             <span>{getUsername()} 🐶</span>

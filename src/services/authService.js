@@ -48,7 +48,7 @@ export const isTokenExpired = (token) => {
         const currentTime = Date.now() / 1000;
         return decoded.exp < currentTime;
     } catch (error) {
-        return true; // Return true if there's an error (invalid token, etc.)
+        return true;
     }
 };
 
@@ -78,4 +78,24 @@ export const getUsername = () => {
 };
 export const removeUsername = () => {
     localStorage.removeItem('username');
+};
+
+export const getAuthHeaders = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+        throw new Error("No token found");
+    }
+    try {
+        if (isTokenExpired(token)) {
+            throw new Error("Token expired");
+        }
+        return {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        };
+    } catch (error) {
+        console.error("Invalid or expired token:", error);
+        logoutUser();
+        throw error;
+    }
 };
