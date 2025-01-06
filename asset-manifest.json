@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/moodjournal-ui/static/css/main.f855e6bc.css",
+    "main.js": "/moodjournal-ui/static/js/main.e435fe78.js",
+    "index.html": "/moodjournal-ui/index.html",
+    "main.f855e6bc.css.map": "/moodjournal-ui/static/css/main.f855e6bc.css.map",
+    "main.e435fe78.js.map": "/moodjournal-ui/static/js/main.e435fe78.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.e435fe78.js"
+  ]
+}
