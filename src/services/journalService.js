@@ -1,12 +1,37 @@
 import axios from 'axios';
 import { getAuthHeaders } from './authService';
+import { encryptAES, decryptAES } from '../utils/encryption';
+import axiosRetry from 'axios-retry';
 
-const API_URL = 'http://127.0.0.1:5000/journal';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5000/journal';;
+
+axiosRetry(axios, {
+    retries: 5,
+    retryDelay: (retryCount) => {
+        console.log(`Retrying... (${retryCount})`);
+        return retryCount * 1000;
+    },
+    retryCondition: (error) => {
+        return error.code === 'ECONNABORTED' || error.response?.status >= 500;
+    },
+});
 
 export const getCalendarEntries = async () => {
     try {
-        const response = await axios.get(`${API_URL}/entries`);
-        return response.data;
+        const response = await axios.get(`${API_URL}/entries`,
+            { headers: getAuthHeaders() }
+        );
+        return response.data.map(entry => {
+            const decryptedText = decryptAES(entry.journal_text);
+
+            return {
+                ...entry,
+                moodColor: entry?.mood_color,
+                moodText: entry?.mood_text,
+                journalEntry: decryptedText,
+                date: new Date(entry.entry_date).toISOString().split('T')[0],
+            };
+        });
     } catch (error) {
         console.error('Error fetching calendar entries:', error);
         return [];
@@ -15,9 +40,8 @@ export const getCalendarEntries = async () => {
 
 export const saveJournalEntry = async (date, entry) => {
     try {
-        const response = await axios.post(
-            `${API_URL}/entry/${date}`,
-            { entry },
+        const response = await axios.put(`${API_URL}/entry/${date}`,
+            { journal_text: encryptAES(entry) },
             { headers: getAuthHeaders() }
         );
         return response.data;
