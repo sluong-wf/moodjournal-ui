@@ -46,3 +46,19 @@ export const saveJournalEntry = async (date, entry) => {
         console.error('Error saving journal entry:', error);
     }
 };
+
+export const requestChatPrompt = async (entry, usePrompt) => {
+    if (!usePrompt) {
+        return '';
+    }
+    try {
+        const response = await axios.post(`${API_URL}/prompt`,
+            { journal_text: entry ?? '' },
+            { headers: getAuthHeaders() }
+        );
+        return response.data.prompt;
+    } catch (error) {
+        console.error('Error fetching chat prompt:', error);
+        return '';
+    }
+}
