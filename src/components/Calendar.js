@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { CircularProgress, Grid2, Box, Typography, Modal, TextField, Button } from '@mui/material';
-import { getCalendarEntries, saveJournalEntry } from '../services/journalService';
+import { getCalendarEntries, saveJournalEntry, requestChatPrompt } from '../services/journalService';
 import MoodBox from './MoodBox';
 import moment from 'moment';
 import { generateFullCalendar } from "../services/calendarService";
 import { useTheme } from '@mui/material/styles';
 import { useFocus } from '../providers/FocusProvider';
+import JournalHistory from './JournalHistory';
 
 const Calendar = ({ }) => {
+  const messageRegex = /:(chat|u):([^:]+)(?=:|$)/gs;
+
   const theme = useTheme();
   const { focusedRow } = useFocus();
 
@@ -16,12 +19,27 @@ const Calendar = ({ }) => {
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [journalEntry, setJournalEntry] = useState('');
-  const [savedEntry, setSavedEntry] = useState('');
+  const [journalHistory, setJournalHistory] = useState('');
+  const [journalHistoryList, setJournalHistoryList] = useState([]);
+  const [chatPrompt, setChatPrompt] = useState('');
   const [moodText, setMoodText] = useState('');
   const [moodColor, setMoodColor] = useState('');
   const [calendarData, setCalendarData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSaveCheckOpen, setSaveCheckOpen] = useState(false);
+  const [displayNewPrompt, setDisplayNewPrompt] = useState(true);
+
+  const [usePrompt, setUsePrompt] = useState(true);
+
+  // Helpers
+  const parseHistory = (input) => {
+    const matches = Array.from(input.matchAll(messageRegex));
+    const messages = matches.map(([_, prefix, content]) => ({
+      sender: prefix === 'u' ? 'user' : 'chatbot',
+      text: content.trim(),
+    }));
+    return messages;
+  };
 
   const rowOpacity = (rowIndex) => {
     if ([0, 1, 2].includes(Math.abs(focusedRow - rowIndex))) {
@@ -30,7 +48,7 @@ const Calendar = ({ }) => {
       return 1 - (0.12 * Math.abs(focusedRow - rowIndex));
     }
   };
-  
+
   const handleScroll = (e) => {
     // keeping empty
   };
@@ -42,48 +60,92 @@ const Calendar = ({ }) => {
   }, [focusedRow]);
 
   useEffect(() => {
+    console.log('Fetching calendar entries...');
     const fetchCalendarEntries = async () => {
       const data = await getCalendarEntries();
       setCalendarData(data);
     };
     fetchCalendarEntries();
-  }, [calendarData]);
+  }, []);
 
   useEffect(() => {
+    console.log('Parsing journal history...');
+    setJournalHistoryList(parseHistory(journalHistory));
+  }, [journalHistory]);
+
+  useEffect(() => {
+    console.log('Generating calendar...');
     const calendar = generateFullCalendar(calendarData, weeksToLoad);
     setFullCalendar(calendar);
   }, [calendarData, weeksToLoad]);
 
-  const handleOpen = (date) => {
+  const handleOpen = async (date) => {
     setSelectedDate(date);
     const entry = calendarData.find(entry => entry.date === date);
-    setSavedEntry(entry?.journalEntry || '');
-    setJournalEntry(entry?.journalEntry || '');
+    setJournalHistory(entry?.journalEntry || '');
     setMoodText(entry?.moodText || '');
     setMoodColor(entry?.moodColor || '');
     setOpen(true);
+    setChatPrompt(await requestChatPrompt(journalHistory, usePrompt));
   };
 
   const handleClose = async () => {
     setOpen(false);
-    if (journalEntry !== savedEntry) {
+    if (journalEntry) {
       setSaveCheckOpen(true);
     } else {
       setSelectedDate(null);
+      setChatPrompt('');
+      setJournalHistory('');
+      setJournalEntry('');
     }
   };
 
+  const handleSaveCheckClose = () => {
+    setSaveCheckOpen(false);
+    setSelectedDate(null);
+    setChatPrompt('');
+    setJournalHistory('');
+    setJournalEntry('');
+  };
+
   const handleSaveEntry = async () => {
-    setLoading(true);
-    await saveJournalEntry(selectedDate, journalEntry);
-    setLoading(false);
+    if (journalEntry) {
+      console.log('Saving entry...');
+      setLoading(true);
+      const updatedJournalHistory = journalHistory + ':chat:' + chatPrompt + ':u:' + journalEntry;
+      setJournalHistory(updatedJournalHistory);
+      await saveJournalEntry(selectedDate, updatedJournalHistory);
+      setLoading(false);
+      setCalendarData(prev => {
+        const updated = [...prev];
+        updated[selectedDate] = updatedJournalHistory;
+        return updated;
+      });
+    }
     setOpen(false);
     setSaveCheckOpen(false);
+    setChatPrompt('');
+    setJournalHistory('');
+  };
+
+  const handleLogEntry = async () => {
+    if (!journalEntry) {
+      return;
+    }
+    console.log('Logging entry...');
+    setDisplayNewPrompt(false);
+    const updatedJournalHistory = journalHistory + ':chat:' + chatPrompt + ':u:' + journalEntry;
+    await saveJournalEntry(selectedDate, updatedJournalHistory);
+    setJournalHistory(updatedJournalHistory);
     setCalendarData(prev => {
       const updated = [...prev];
-      updated[selectedDate] = journalEntry;
+      updated[selectedDate] = updatedJournalHistory;
       return updated;
     });
+    setJournalEntry('');
+    setDisplayNewPrompt(true);
+    setChatPrompt(await requestChatPrompt(journalHistory, usePrompt));
   };
 
   return (
@@ -123,6 +185,7 @@ const Calendar = ({ }) => {
             <Typography variant="h6" sx={{ padding: '5px', color: theme.palette.primary.main }}>Journal</Typography>
             <Typography variant="h7" sx={{ padding: '5px', color: moodColor }}>{moodText ? `✨ Feeling ${moodText}` : ''}</Typography>
           </Box>
+          <JournalHistory messages={journalHistoryList} prompt={chatPrompt} displayNewPrompt={displayNewPrompt} />
           <TextField
             label={selectedDate}
             multiline
@@ -139,14 +202,21 @@ const Calendar = ({ }) => {
               </Box>
             ) : (
               <>
-                <Button sx={{ padding: '10px 0 0 5px', justifyContent: 'left' }} onClick={handleSaveEntry}>Save</Button>
+                <Box display="flex" justifyContent="space-between" gap={2}>
+                  <Button sx={{ marginTop: '15px' }} variant="outlined" color="primary" onClick={handleLogEntry}>
+                    Log
+                  </Button>
+                  <Button sx={{ marginTop: '15px' }} variant="contained" color="primary" onClick={handleSaveEntry}>
+                    Done
+                  </Button>
+                </Box>
               </>
             )
           }
         </Box>
       </Modal>
       {/* Modal for unsaved changes */}
-      <Modal open={isSaveCheckOpen} onClose={() => setSaveCheckOpen(false)}>
+      <Modal open={isSaveCheckOpen} onClose={handleSaveCheckClose}>
         <Box
           sx={{
             position: "absolute",
@@ -179,7 +249,7 @@ const Calendar = ({ }) => {
                   <Button variant="contained" color="primary" onClick={handleSaveEntry}>
                     Save
                   </Button>
-                  <Button variant="outlined" color="error" onClick={() => setSaveCheckOpen(false)}>
+                  <Button variant="outlined" color="error" onClick={handleSaveCheckClose}>
                     Discard
                   </Button>
                 </Box>
