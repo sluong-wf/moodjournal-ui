@@ -21,6 +21,7 @@ const Calendar = ({ }) => {
   const [moodColor, setMoodColor] = useState('');
   const [calendarData, setCalendarData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSaveCheckOpen, setSaveCheckOpen] = useState(false);
 
   const rowOpacity = (rowIndex) => {
     if ([0, 1, 2].includes(Math.abs(focusedRow - rowIndex))) {
@@ -28,8 +29,8 @@ const Calendar = ({ }) => {
     } else {
       return 1 - (0.12 * Math.abs(focusedRow - rowIndex));
     }
-  }
-
+  };
+  
   const handleScroll = (e) => {
     // keeping empty
   };
@@ -45,7 +46,7 @@ const Calendar = ({ }) => {
       const data = await getCalendarEntries();
       setCalendarData(data);
     };
-    // fetchCalendarEntries();
+    fetchCalendarEntries();
   }, [calendarData]);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const Calendar = ({ }) => {
   const handleOpen = (date) => {
     setSelectedDate(date);
     const entry = calendarData.find(entry => entry.date === date);
+    setSavedEntry(entry?.journalEntry || '');
     setJournalEntry(entry?.journalEntry || '');
     setMoodText(entry?.moodText || '');
     setMoodColor(entry?.moodColor || '');
@@ -64,10 +66,11 @@ const Calendar = ({ }) => {
 
   const handleClose = async () => {
     setOpen(false);
-    if (journalEntry || !journalEntry.equals(savedEntry)) {
-      await saveJournalEntry(selectedDate, journalEntry);
+    if (journalEntry !== savedEntry) {
+      setSaveCheckOpen(true);
+    } else {
+      setSelectedDate(null);
     }
-    setSelectedDate(null);
   };
 
   const handleSaveEntry = async () => {
@@ -75,7 +78,7 @@ const Calendar = ({ }) => {
     await saveJournalEntry(selectedDate, journalEntry);
     setLoading(false);
     setOpen(false);
-    setSavedEntry(journalEntry);
+    setSaveCheckOpen(false);
     setCalendarData(prev => {
       const updated = [...prev];
       updated[selectedDate] = journalEntry;
@@ -137,6 +140,49 @@ const Calendar = ({ }) => {
             ) : (
               <>
                 <Button sx={{ padding: '10px 0 0 5px', justifyContent: 'left' }} onClick={handleSaveEntry}>Save</Button>
+              </>
+            )
+          }
+        </Box>
+      </Modal>
+      {/* Modal for unsaved changes */}
+      <Modal open={isSaveCheckOpen} onClose={() => setSaveCheckOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            padding: 4,
+            boxShadow: 24,
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" gutterBottom>
+            Unsaved Changes
+          </Typography>
+          <Typography variant="body1" sx={{ marginBottom: 2 }}>
+            Do you want to save or discard your changes?
+          </Typography>
+
+          {loading ?
+            (
+              <Box sx={{ marginTop: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <CircularProgress sx={{ width: 20, height: 20 }} />
+              </Box>
+            ) :
+            (
+              <>
+                <Box display="flex" justifyContent="center" gap={2}>
+                  <Button variant="contained" color="primary" onClick={handleSaveEntry}>
+                    Save
+                  </Button>
+                  <Button variant="outlined" color="error" onClick={() => setSaveCheckOpen(false)}>
+                    Discard
+                  </Button>
+                </Box>
               </>
             )
           }
