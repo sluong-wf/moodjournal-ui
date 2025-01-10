@@ -58,9 +58,8 @@ const HomePage = () => {
             setIsChatbotEnabled(false);
             return;
         };
-        console.log(userData?.prefrences?.chatbot);
         setThemeName(userData?.preferences?.theme ?? themeName);
-        setIsChatbotEnabled(userData?.prefrences?.chatbot ?? isChatbotEnabled);
+        setIsChatbotEnabled(userData?.preferences?.chatbot ?? isChatbotEnabled);
     }, [userData]);
 
     useEffect(() => {
