@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { Box, IconButton } from '@mui/material';
-import { Brightness7, Brightness4, Nature, BeachAccess, ColorLens, Settings, WbSunny } from '@mui/icons-material';
+import { Box, IconButton, Switch, FormControlLabel } from '@mui/material';
+import { Brightness7, Brightness4, Nature, BeachAccess, ColorLens, BikeScooter, Settings, WbSunny } from '@mui/icons-material';
 import PaletteIcon from "@mui/icons-material/Palette";
 import { useTheme } from "@mui/material/styles";
-import { saveSelectedTheme } from '../utils/theme';
 
-const ThemeSelector = ({ toggleTheme }) => {
+const ThemeSelector = ({ switchTheme, toggleChatbot, isChatbotEnabled }) => {
   const theme = useTheme();
 
   const [collapsed, setCollapsed] = useState(true);
 
   const handleSelectTheme = (selectedTheme) => {
-    saveSelectedTheme(selectedTheme);
-    toggleTheme(selectedTheme);
+    switchTheme(selectedTheme);
   };
 
   return (
@@ -112,8 +110,9 @@ const ThemeSelector = ({ toggleTheme }) => {
             },
           }}
         >
-          <Settings />
+          <BikeScooter />
         </IconButton>
+        <FormControlLabel sx={{ margin: '0' }} control={<Switch checked={isChatbotEnabled} onChange={toggleChatbot} color="primary" />} label="" />
       </Box>
 
       <IconButton
@@ -130,7 +129,6 @@ const ThemeSelector = ({ toggleTheme }) => {
           display: collapsed ? "block" : "none",
           boxShadow: 3,
         }}
-        // onClick={() => setCollapsed(!collapsed)}
       >
         <PaletteIcon />
       </IconButton>

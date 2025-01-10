@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { AppBar, Toolbar, Button, Typography, Modal, Box, TextField } from '@mui/material';
-import { loginUser, registerUser, logoutUser, getLoggedInUser, saveUsername, getUsername } from '../services/authService';
+import { loginUser, registerUser, logoutUser, getLoggedInUser, saveUsername, getUsername, getUserDetails } from '../services/authService';
 import { useTheme } from '@mui/material/styles';
+import { Face2 } from '@mui/icons-material';
 
-const NavbarComponent = () => {
+const NavbarComponent = ({ setTriggerRemount, setUserData, userData }) => {
     const theme = useTheme();
 
     const [showSignUp, setShowSignUp] = useState(false);
@@ -11,11 +12,11 @@ const NavbarComponent = () => {
     const [padding, setPadding] = useState("0px");
 
     useEffect(() => {
-      const timeToLower = setTimeout(() => {
-        setPadding("60px");
-      }, 150);
-  
-      return () => clearTimeout(timeToLower);
+        const timeToLower = setTimeout(() => {
+            setPadding("60px");
+        }, 150);
+
+        return () => clearTimeout(timeToLower);
     }, []);
 
     const [formData, setFormData] = useState({
@@ -26,14 +27,18 @@ const NavbarComponent = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-      const user = getLoggedInUser();
-      setIsLoggedIn(user !== null);
+        const user = getLoggedInUser();
+        setIsLoggedIn(user !== null);
     }, []);
-  
+
     const handleLogOut = () => {
-      logoutUser();
-      setIsLoggedIn(false);
+        logoutUser();
+        setIsLoggedIn(false);
     };
+
+    useEffect(() => {
+        setTriggerRemount((prev) => !prev);
+    }, [isLoggedIn]);
 
     const handleCloseSignUp = () => setShowSignUp(false);
     const handleCloseLogin = () => setShowLogin(false);
@@ -71,9 +76,9 @@ const NavbarComponent = () => {
     return (
         <div>
             <AppBar sx={{ backgroundColor: theme.palette.secondary.main, zIndex: 90, width: "300px", top: "0", left: "50%", transform: "translateX(-50%)" }}>
-                <Toolbar sx={{  justifyContent: "center" }}>
-                    <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-                        Mood Journal
+                <Toolbar sx={{ justifyContent: "center" }}>
+                    <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', flexGrow: 1, fontWeight: "bold", justifyItems: 'center' }}>
+                        <Face2 /> Moodee
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -81,7 +86,7 @@ const NavbarComponent = () => {
                 <Toolbar sx={{ paddingTop: padding, width: "250px", color: "white", backgroundColor: "#353535", justifyContent: "space-around", transition: "padding-top 0.8s ease-in-out" }}>
                     {isLoggedIn ? (
                         <>
-                            <span>{getUsername()} 🐶</span>
+                            <span>{getUsername()}</span>
                             <Button color="inherit" onClick={handleLogOut}>Log Out</Button>
                         </>
                     ) : (

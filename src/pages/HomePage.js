@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavbarComponent from '../components/Navbar';
 import Calendar from '../components/Calendar';
 import ThemeSelector from '../components/ThemeSelector';
 import { ThemeProvider } from '@mui/material/styles';
 import { themes } from '../utils/theme'
-import { getSelectedTheme } from '../utils/theme';
 import { FocusProvider } from '../providers/FocusProvider';
+import { updateUserDetails, getUserDetails, getLoggedInUser } from '../services/authService';
 
 const calendarData = [
     { date: "2025-01-02", moodColor: "#FFB6B6", journalEntry: "Enjoyed a peaceful walk in the park." },
@@ -19,11 +19,64 @@ const calendarData = [
 ];
 
 const HomePage = () => {
-    const [themeName, setThemeName] = useState(getSelectedTheme() ?? 'light');
+    const [themeName, setThemeName] = useState('light');
+    const [userData, setUserData] = useState(null);
+    const [isChatbotEnabled, setIsChatbotEnabled] = useState(false);
+    const [triggerRemount, setTriggerRemount] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const toggleTheme = (newTheme) => {
+    const switchTheme = async (newTheme) => {
+        if (userData) {
+            await updateUserDetails({
+                ...userData,
+                preferences: {
+                    ...userData?.preferences,
+                    theme: newTheme
+                }
+            });
+        }
         setThemeName(newTheme);
     };
+
+    const toggleChatbot = async () => {
+        const newChatbotState = !isChatbotEnabled;
+        if (userData) {
+            await updateUserDetails({
+                ...userData,
+                preferences: {
+                    ...userData?.preferences,
+                    chatbot: newChatbotState
+                },
+            });
+        };
+        setIsChatbotEnabled(newChatbotState);
+    };
+
+    useEffect(() => {
+        if (!userData) {
+            setThemeName('light');
+            setIsChatbotEnabled(false);
+            return;
+        };
+        console.log(userData?.prefrences?.chatbot);
+        setThemeName(userData?.preferences?.theme ?? themeName);
+        setIsChatbotEnabled(userData?.prefrences?.chatbot ?? isChatbotEnabled);
+    }, [userData]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (isLoggedIn) {
+                setUserData(await getUserDetails());
+            } else {
+                setUserData(null);
+            }
+        };
+        fetchUserData();
+    }, [isLoggedIn]);
+
+    useEffect(() => {
+        setIsLoggedIn(!!getLoggedInUser());
+    }, []);
 
     const styles = {
         container: {
@@ -33,17 +86,15 @@ const HomePage = () => {
             alignItems: "center",
         },
     };
+
     return (
         <FocusProvider>
             <ThemeProvider theme={themes[themeName]}>
                 <div style={styles.container}>
-                    <ThemeSelector toggleTheme={toggleTheme} />
-                    <NavbarComponent />
-                    <div style={{ padding: '20px' }}>
-                        {/* <h1>Welcome to Mood Journal</h1> */}
-                        {/* <p>Track your mood and daily thoughts!</p> */}
-                    </div>
-                    <Calendar calData={calendarData} />
+                    <ThemeSelector switchTheme={switchTheme} toggleChatbot={toggleChatbot} isChatbotEnabled={isChatbotEnabled} />
+                    <NavbarComponent setTriggerRemount={setTriggerRemount} setUserData={setUserData} userData={userData} />
+                    <div style={{ padding: '20px' }}></div>
+                    <Calendar key={triggerRemount ? 1 : 0} calData={calendarData} usePrompt={isChatbotEnabled} />
                 </div>
             </ThemeProvider>
         </FocusProvider>

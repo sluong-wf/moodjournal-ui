@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const API_URL = process.env.REACT_APP_API_AUTH_URL || 'http://127.0.0.1:5000/account';
+const API_URL = `${process.env.REACT_APP_API_URL}/account`;
 
 export const registerUser = async (userData) => {
     try {
@@ -99,3 +99,27 @@ export const getAuthHeaders = () => {
         throw error;
     }
 };
+
+export const getUserDetails = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/details`, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user details:", error);
+        throw error;
+    }
+}
+
+export const updateUserDetails = async (userData) => {
+    try {
+        const response = await axios.put(`${API_URL}/details`, userData, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating user details:", error);
+        throw error;
+    }
+}

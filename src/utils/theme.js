@@ -178,9 +178,3 @@ export const themes = {
   }),
 };
 
-export const saveSelectedTheme = (theme) => {
-  localStorage.setItem('selectedTheme', theme);
-};
-export const getSelectedTheme = () => {
-  return localStorage.getItem('selectedTheme') ?? null;
-};
