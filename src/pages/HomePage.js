@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { themes } from '../utils/theme'
 import { FocusProvider } from '../providers/FocusProvider';
 import { updateUserDetails, getUserDetails, getLoggedInUser } from '../services/authService';
+import HealthCheckOverlay from '../components/HealthCheckOverlay';
 
 const calendarData = [
     { date: "2025-01-02", moodColor: "#FFB6B6", journalEntry: "Enjoyed a peaceful walk in the park." },
@@ -90,6 +91,7 @@ const HomePage = () => {
         <FocusProvider>
             <ThemeProvider theme={themes[themeName]}>
                 <div style={styles.container}>
+                    <HealthCheckOverlay />
                     <ThemeSelector switchTheme={switchTheme} toggleChatbot={toggleChatbot} isChatbotEnabled={isChatbotEnabled} />
                     <NavbarComponent setTriggerRemount={setTriggerRemount} setUserData={setUserData} userData={userData} />
                     <div style={{ padding: '20px' }}></div>
