@@ -2,10 +2,18 @@
 MoodJournal is a web application that helps users track their daily moods, journal their thoughts, and visualize emotional trends.
 Using the power of **GPT LLM**, MoodJournal analyzes journal entries to generate personalized mood insights and suggest mood colors, making emotional tracking intuitive and meaningful.
 
+Live [Here](https://sluong-wf.github.io/moodjournal-ui/)!
+
 
 ---
 
 Check out a quick walkthrough of **MoodJournal** in action!  
+
+
+
+https://github.com/user-attachments/assets/d53f6e06-4635-4868-9c2a-a8bffac32877
+
+
 
 https://github.com/user-attachments/assets/a2cd6b11-efde-4f80-bad3-2d6c968fd03d
 
