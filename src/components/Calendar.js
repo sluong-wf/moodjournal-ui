@@ -112,9 +112,9 @@ const Calendar = ({ usePrompt }) => {
 
   const handleSaveEntry = async () => {
     setDisplayNewPrompt(false);
-    if (!isSaved) {
+    if (!isSaved || !!journalEntry) {
       setLoading(true);
-      const updatedJournalHistory = journalEntry ? `${journalHistory}:chat:${chatPrompt}:u:${journalEntry}` : journalHistory;
+      const updatedJournalHistory = !!journalEntry ? `${journalHistory}:chat:${chatPrompt}:u:${journalEntry}` : journalHistory;
       await postJournalEntry(selectedDate, updatedJournalHistory);
       setLoading(false);
       setIsSaved(true);
