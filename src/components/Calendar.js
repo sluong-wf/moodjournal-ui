@@ -159,6 +159,7 @@ const Calendar = ({ usePrompt }) => {
                   <MoodBox
                     moodColor={day.moodColor}
                     onClick={() => handleOpen(day.date)}
+                    dateString={day.date}
                     today={moment().format("YYYY-MM-DD") === day.date}
                   />
                 </Grid2>

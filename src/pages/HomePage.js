@@ -22,7 +22,7 @@ const calendarData = [
 const HomePage = () => {
     const [themeName, setThemeName] = useState('light');
     const [userData, setUserData] = useState(null);
-    const [isChatbotEnabled, setIsChatbotEnabled] = useState(false);
+    const [isChatbotEnabled, setIsChatbotEnabled] = useState(true);
     const [triggerRemount, setTriggerRemount] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 

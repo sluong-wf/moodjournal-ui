@@ -1,7 +1,7 @@
 import { useTheme } from '@mui/material/styles';
 import React, { useRef, useEffect, useState } from 'react';
 
-const TowerBuilder = () => {
+const TowerBuilder = ({ setIsGameInProgress }) => {
     const canvasRef = useRef(null);
     const theme = useTheme();
 
@@ -14,7 +14,7 @@ const TowerBuilder = () => {
         speedX: 5,
         placed: false,
     });
-    const [isGameOver, setIsGameOver] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(true);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -36,11 +36,11 @@ const TowerBuilder = () => {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 ctx.fillStyle = 'white';
-                ctx.font = '30px monospace';
+                ctx.font = '20px monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText('Game Over', canvas.width / 2, canvas.height / 3 + 30);
-                ctx.font = '15px monospace';
-                ctx.fillText('Click anywhere to restart', canvas.width / 2, canvas.height / 2 + 10);
+                ctx.fillText('Starting New Game', canvas.width / 2, canvas.height / 3 + 30);
+                ctx.font = '12px monospace';
+                ctx.fillText('Click anywhere to begin', canvas.width / 2, canvas.height / 2 + 10);
             }
         };
 
@@ -107,6 +107,7 @@ const TowerBuilder = () => {
             placed: false,
         });
         setIsGameOver(false);
+        setIsGameInProgress(true);
     };
 
     return (
