@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/moodjournal-ui/static/css/main.f855e6bc.css",
-    "main.js": "/moodjournal-ui/static/js/main.9af24ba3.js",
+    "main.js": "/moodjournal-ui/static/js/main.bdaf22ad.js",
     "index.html": "/moodjournal-ui/index.html",
     "main.f855e6bc.css.map": "/moodjournal-ui/static/css/main.f855e6bc.css.map",
-    "main.9af24ba3.js.map": "/moodjournal-ui/static/js/main.9af24ba3.js.map"
+    "main.bdaf22ad.js.map": "/moodjournal-ui/static/js/main.bdaf22ad.js.map"
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.9af24ba3.js"
+    "static/js/main.bdaf22ad.js"
   ]
 }
