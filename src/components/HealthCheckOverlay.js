@@ -19,6 +19,19 @@ const HealthCheckOverlay = ({ }) => {
     };
 
     useEffect(() => {
+        if (loading || isGameInProgress) {
+            document.body.style.overflow = 'hidden'; // Disable scrolling
+        } else {
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }
+
+        // Cleanup on unmount
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [loading, isGameInProgress]);
+
+    useEffect(() => {
         performHealthCheck();
     }, []);
 
