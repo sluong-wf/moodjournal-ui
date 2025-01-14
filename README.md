@@ -10,12 +10,8 @@ Live [Here](https://sluong-wf.github.io/moodjournal-ui/)!
 Check out a quick walkthrough of **MoodJournal** in action!  
 
 
+https://github.com/user-attachments/assets/c832015c-d2ff-4398-a209-d5069dfd7edb
 
-https://github.com/user-attachments/assets/d53f6e06-4635-4868-9c2a-a8bffac32877
-
-
-
-https://github.com/user-attachments/assets/a2cd6b11-efde-4f80-bad3-2d6c968fd03d
 
 ---
 
@@ -53,5 +49,11 @@ Here are some snapshots of **MoodJournal's** evolution:
 <div align="center" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
   <img src="https://github.com/user-attachments/assets/bf890e98-987e-4253-bcd4-402ebdfa2a7e" alt="UI Iteration 1" width="30%" />
 </div>
+
+
+https://github.com/user-attachments/assets/d53f6e06-4635-4868-9c2a-a8bffac32877
+
+
+https://github.com/user-attachments/assets/a2cd6b11-efde-4f80-bad3-2d6c968fd03d
 
 ---
